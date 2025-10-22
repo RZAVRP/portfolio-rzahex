@@ -1,61 +1,47 @@
 import requests
 from bs4 import BeautifulSoup
 import urllib.parse
-import pandas as pd
+import csv
 
 # Ambil URL dari input pengguna
 base_url = input("Masukkan URL target (tanpa parameter query): ").strip()
 
-# Pastikan URL valid (minimal mengandung http:// atau https://)
 if not base_url.startswith(('http://', 'https://')):
     print("URL harus diawali dengan http:// atau https://")
     exit()
 
-# Function to extract parameters from a URL (opsional, tidak dipakai langsung di sini)
-def extract_parameters(url):
-    parsed_url = urllib.parse.urlparse(url)
-    query_params = urllib.parse.parse_qs(parsed_url.query)
-    return query_params
-
-# Function to scan parameters
 def scan_parameters(base_url, params):
     results = []
     for param, values in params.items():
         for value in values:
-            # Encode parameter dan value agar aman untuk URL
             encoded_param = urllib.parse.quote(param)
             encoded_value = urllib.parse.quote(value)
             full_url = f"{base_url}?{encoded_param}={encoded_value}"
             
             try:
                 response = requests.get(full_url, timeout=10)
-                if response.status_code == 200:
+                status = response.status_code
+                if status == 200:
                     soup = BeautifulSoup(response.content, 'html.parser')
                     # Ganti 'your_tag' dengan tag yang ingin kamu ekstrak, misal 'title', 'p', dll.
-                    data = soup.find_all('your_tag')  # <-- Ganti ini sesuai kebutuhan
-                    results.append({
-                        'parameter': param,
-                        'value': value,
-                        'status_code': response.status_code,
-                        'data': str(data)  # Konversi ke string agar bisa disimpan di CSV
-                    })
+                    data_elements = soup.find_all('your_tag')  # <-- SESUAIKAN DI SINI
+                    # Ambil teks dari elemen atau tampilkan strukturnya
+                    data_text = ' | '.join([str(el) for el in data_elements])  # Bisa juga el.get_text()
                 else:
-                    results.append({
-                        'parameter': param,
-                        'value': value,
-                        'status_code': response.status_code,
-                        'data': None
-                    })
+                    data_text = ''
             except requests.RequestException as e:
-                results.append({
-                    'parameter': param,
-                    'value': value,
-                    'status_code': 'Error',
-                    'data': str(e)
-                })
+                status = 'Error'
+                data_text = str(e)
+
+            results.append({
+                'parameter': param,
+                'value': value,
+                'status_code': status,
+                'data': data_text
+            })
     return results
 
-# Parameter yang ingin discan (bisa juga diinput dinamis jika diperlukan)
+# Daftar parameter (bisa kamu ubah sesuai kebutuhan)
 params = {
     'id': ['1', '2', '3'],
     'name': ['Alice', 'Bob', 'Charlie'],
@@ -64,15 +50,21 @@ params = {
     'cat': ['dog', 'cat', 'bird']
 }
 
-# Jalankan pemindaian
 print("Memulai pemindaian...")
 results = scan_parameters(base_url, params)
 
-# Konversi ke DataFrame
-df = pd.DataFrame(results)
-print(df)
-
-# Simpan ke file CSV
+# Simpan ke CSV tanpa pandas
 output_file = 'parameter_scan_results.csv'
-df.to_csv(output_file, index=False)
+with open(output_file, mode='w', newline='', encoding='utf-8') as csvfile:
+    fieldnames = ['parameter', 'value', 'status_code', 'data']
+    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    writer.writeheader()
+    for row in results:
+        writer.writerow(row)
+
 print(f"Hasil disimpan ke {output_file}")
+
+# Opsional: tampilkan hasil di terminal
+print("\nRingkasan hasil:")
+for r in results:
+    print(f"[{r['status_code']}] {r['parameter']}={r['value']}")
