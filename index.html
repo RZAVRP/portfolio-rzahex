@@ -1,335 +1,506 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fahreza | TKJ & Web Developer (Beginner)</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Cerpen Manager — Fixed Version</title>
 
-  <style>
-    /* --- Global --- */
-    * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
-    :root {
-      --bg-color: #080808;
-      --secondary-bg-color: #1a1a2e;
-      --main-color: #00ffff;
-      --text-color: #e5e5e5;
-      --gradient: linear-gradient(90deg, #00ffff, #007bff);
-    }
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: var(--bg-color);
-      color: var(--text-color);
-      line-height: 1.7;
-      overflow-x: hidden;
-    }
-    section {
-      max-width: 1100px;
-      margin: 6rem auto;
-      padding: 0 5%;
-      position: relative;
-      z-index: 2;
-    }
-    .heading {
-      font-size: 2.5rem;
-      text-align: center;
-      margin-bottom: 3rem;
-    }
-    .heading .accent { color: var(--main-color); text-shadow: 0 0 10px rgba(0,255,255,0.5); }
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
 
-    /* --- Navbar --- */
-    .header {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%;
-      padding: 1.5rem 5%;
-      background: rgba(8,8,8,0.95);
-      backdrop-filter: blur(10px);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 1000;
-      border-bottom: 1px solid rgba(0,255,255,0.1);
-      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
-    }
-    .logo { font-size: 1.8rem; color: var(--text-color); font-weight: 700; text-decoration: none; }
-    .logo-dot { color: var(--main-color); }
-    .navbar a {
-      font-size: 1rem; color: var(--text-color); text-decoration: none; font-weight: 500;
-      margin-left: 2.5rem; transition: all 0.3s ease;
-      border-bottom: 2px solid transparent; padding-bottom: 5px;
-    }
-    .navbar a:hover, .navbar a.active { color: var(--main-color); border-color: var(--main-color); }
-    .navbar a i { margin-right: 5px; }
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.2.0/docx.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
-    /* --- Hero --- */
-    .hero {
-      min-height: 100vh;
-      padding-top: 8rem;
-      display: flex; flex-wrap: wrap;
-      align-items: center;
-      justify-content: center;
-      gap: 4rem;
-      text-align: center;
-    }
-    .hero-img img {
-      width: 250px; height: 250px;
-      border-radius: 50%;
-      border: 5px solid var(--main-color);
-      object-fit: cover;
-      box-shadow: 0 0 30px rgba(0,255,255,0.6);
-      filter: grayscale(0.2);
-      transition: all 0.5s ease;
-    }
-    .hero-img img:hover { transform: scale(1.05) rotate(2deg); box-shadow: 0 0 50px rgba(0,255,255,0.9); }
-    .hero-text { max-width: 550px; }
-    .hero-text .greeting { font-size: 1.1rem; color: var(--main-color); margin-bottom: 0.5rem; }
-    .hero-text .name-title { font-size: 4rem; font-weight: 900; line-height: 1.1; }
-    .hero-text .title-role {
-      font-size: 1.8rem; font-weight: 600; color: var(--main-color);
-      margin: 0.5rem 0 1.5rem;
-      white-space: nowrap; overflow: hidden;
-      border-right: .15em solid var(--main-color);
-      animation: typing 3s steps(30,end), blink-caret .8s step-end infinite;
-    }
-    .hero-text .description { font-size: 1rem; opacity: 0.9; margin-bottom: 2rem; }
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
-    /* --- Button --- */
-    .btn {
-      display: inline-block; padding: 14px 30px; background: var(--gradient);
-      color: #fff; font-size: 1rem; text-decoration: none; border: none;
-      border-radius: 8px; box-shadow: 0 5px 20px rgba(0,255,255,0.3);
-      text-transform: uppercase; letter-spacing: 1px; font-weight: 600;
-      transition: all 0.4s ease;
-    }
-    .btn:hover { background: linear-gradient(90deg,#007bff,#00ffff); transform: translateY(-5px) scale(1.02); box-shadow: 0 8px 25px rgba(0,255,255,0.5); }
-    .btn i { margin-right: 8px; }
-    .btn-secondary {
-      background: transparent; border: 2px solid var(--main-color); box-shadow: none;
-      color: var(--main-color); margin-top: 1rem;
-    }
-    .btn-secondary:hover { background: var(--main-color); color: var(--bg-color); box-shadow: 0 0 15px rgba(0,255,255,0.5); transform: translateY(-3px); }
+<style>
+  :root{
+    --bg: #0f1724;
+    --card: #1e293b;
+    --border: rgba(255,255,255,0.08);
+    --primary: #3b82f6;
+    --accent: #8b5cf6;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --folder: #fbbf24;
+    --danger: #ef4444;
+    --success: #10b981;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);
+    min-height:100vh;display:flex;flex-direction:column;
+  }
+  
+  /* Layout */
+  .container{
+    max-width:1200px;width:94%;margin:0 auto;padding:20px 0 60px;
+    display:grid;grid-template-columns: 1fr 450px;gap:24px;
+  }
+  @media(max-width:900px){ .container{grid-template-columns:1fr} }
 
-    /* --- About --- */
-    #about p { font-size: 1.1rem; max-width: 800px; margin: 0 auto 1.5rem; text-align: center; }
+  /* Header */
+  header{
+    padding:20px 0;border-bottom:1px solid var(--border);margin-bottom:20px;
+    background:rgba(15,23,36,0.9);backdrop-filter:blur(10px);position:sticky;top:0;z-index:10;
+  }
+  .head-wrap{max-width:1200px;width:94%;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+  .brand{font-weight:700;font-size:1.2rem;background:linear-gradient(to right, var(--primary), var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 
-    /* --- Skills --- */
-    .skills-container { display: flex; flex-direction: column; gap: 1.5rem; max-width: 700px; margin: 0 auto; padding: 1rem; background: var(--secondary-bg-color); border-radius: 15px; box-shadow: 0 0 20px rgba(0,255,255,0.1); }
-    .skill-item { margin-bottom: 0.5rem; }
-    .skill-info { display: flex; justify-content: space-between; margin-bottom: 5px; font-weight: 600; }
-    .bar { background: #333; border-radius: 5px; overflow: hidden; height: 15px; position: relative; }
-    .bar span {
-      display: block; height: 100%; background: var(--gradient);
-      border-radius: 5px; width: 0; transition: width 2s ease-out;
-    }
+  /* Cards */
+  .card{
+    background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;
+    box-shadow:0 10px 15px -3px rgba(0,0,0,0.3);position:relative;
+  }
+  h2,h3{margin:0 0 16px 0;font-weight:600}
+  
+  /* Inputs */
+  label{display:block;color:var(--muted);font-size:0.85rem;margin-bottom:6px;margin-top:14px}
+  input, select, textarea{
+    width:100%;background:#0f1724;border:1px solid var(--border);color:white;
+    padding:12px;border-radius:8px;font-family:inherit;outline:none;transition:0.2s;
+  }
+  input:focus, textarea:focus{border-color:var(--primary)}
+  textarea{min-height:200px;line-height:1.6;resize:vertical}
 
-    /* --- Projects --- */
-    .projects-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
-    .card { background: var(--secondary-bg-color); padding: 1.5rem; border-radius: 15px; box-shadow: 0 0 15px rgba(0,255,255,0.1); transition: transform 0.4s ease, box-shadow 0.4s ease; border-top: 5px solid var(--main-color); }
-    .card h3 { color: var(--main-color); margin-bottom: 0.5rem; }
-    .card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,255,255,0.2); }
-    .project-link { display: inline-block; color: var(--main-color); text-decoration: none; margin-top: 1rem; font-weight: 600; transition: margin-left 0.3s ease; }
-    .project-link:hover { margin-left: 5px; }
+  /* Buttons */
+  .btn{
+    cursor:pointer;background:var(--primary);color:white;border:none;padding:10px 16px;
+    border-radius:8px;font-weight:600;font-size:0.9rem;display:inline-flex;align-items:center;gap:8px;
+    transition:0.2s;
+  }
+  .btn:hover{filter:brightness(1.1)}
+  .btn:disabled{opacity:0.6;cursor:not-allowed}
+  .btn.secondary{background:transparent;border:1px solid var(--border);color:var(--muted)}
+  .btn.secondary:hover{border-color:var(--text);color:var(--text)}
+  .btn.danger{background:var(--danger);color:white}
+  .btn.download{background:var(--success);}
 
-    /* --- Contact --- */
-    .contact-text { text-align: center; font-size: 1.1rem; margin-bottom: 2rem; }
-    .contact-links { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; }
-    .social-link { color: var(--main-color); text-decoration: none; font-size: 1.1rem; transition: color 0.3s ease; }
-    .social-link i { margin-right: 8px; font-size: 1.2rem; }
-    .social-link:hover { color: #00b3b3; }
+  /* Admin Folder Grid */
+  .folder-grid{
+    display:grid;grid-template-columns:repeat(auto-fill, minmax(100px, 1fr));gap:16px;margin-top:16px;
+  }
+  .folder-item{
+    background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;
+    padding:16px;text-align:center;cursor:pointer;transition:0.2s;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  }
+  .folder-item:hover{background:rgba(255,255,255,0.06);transform:translateY(-2px);border-color:var(--folder)}
+  .folder-icon{width:40px;height:40px;fill:var(--folder)}
+  .folder-name{font-size:0.8rem;color:var(--muted);word-break:break-word;line-height:1.2}
 
-    /* --- Footer --- */
-    footer { text-align: center; padding: 2rem 1rem; margin-top: 3rem; background: #000; color: #888; font-size: 0.9rem; border-top: 1px solid rgba(0,255,255,0.05); }
-    .scroll-up { color: #555; text-decoration: none; font-size: 0.9rem; margin-left: 1rem; transition: color 0.3s ease; }
-    .scroll-up:hover { color: var(--main-color); }
+  /* File List inside Folder */
+  .file-list{display:flex;flex-direction:column;gap:12px;margin-top:16px}
+  .file-card{
+    background:rgba(0,0,0,0.2);border:1px solid var(--border);padding:14px;border-radius:8px;
+  }
+  .file-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+  .file-title{font-weight:600;color:var(--text);font-size:0.95rem}
+  .file-meta{font-size:0.75rem;color:var(--muted);margin-bottom:10px;font-family:'JetBrains Mono', monospace}
+  .file-actions{display:flex;gap:8px;margin-top:12px;border-top:1px solid var(--border);padding-top:10px;flex-wrap:wrap}
+  .file-actions button{font-size:0.75rem;padding:6px 12px}
 
-    /* --- Floating Elements --- */
-    .floating-elements { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; overflow: hidden; }
-    .floating-elements span { position: absolute; font-size: 7rem; font-weight: 700; color: rgba(0,255,255,0.03); animation: floatAnim 8s ease-in-out infinite alternate; user-select: none; }
-    .floating-elements span:nth-child(1){top:15%;left:10%;animation-delay:0s;}
-    .floating-elements span:nth-child(2){top:40%;left:70%;animation-delay:2s;color:rgba(255,165,0,0.05);}
-    .floating-elements span:nth-child(3){top:65%;left:25%;animation-delay:4s;color:rgba(0,128,255,0.05);}
-    .floating-elements span:nth-child(4){top:80%;left:85%;animation-delay:6s;color:rgba(255,255,0,0.05);}
-    @keyframes floatAnim { from { transform: translateY(0) rotate(0deg); } to { transform: translateY(-25px) rotate(10deg); } }
+  /* Editor Overlay */
+  #editorOverlay{
+    position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:100;
+    display:none;align-items:center;justify-content:center;backdrop-filter:blur(5px);
+  }
+  .editor-modal{
+    width:90%;max-width:700px;background:var(--card);border:1px solid var(--border);
+    border-radius:12px;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,0.5);
+    display:flex;flex-direction:column;max-height:90vh;
+  }
+  .editor-body{overflow-y:auto;padding-right:8px;flex:1}
 
-    /* --- Welcome Screen --- */
-    .welcome-screen { position: fixed; inset: 0; background: var(--bg-color); display: flex; align-items: center; justify-content: center; z-index: 9999; color: var(--main-color); font-size: 2rem; text-align: center; transition: opacity 0.8s ease; }
-    #welcome-text { overflow: hidden; border-right: .15em solid var(--main-color); white-space: nowrap; animation: blink-caret .8s step-end infinite; }
-
-    /* --- Animations --- */
-    @keyframes typing { from { width: 0 } to { width: 100% } }
-    @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: var(--main-color) } }
-    .fade-in { opacity: 0; transform: translateY(30px); transition: opacity 1s ease-out, transform 1s ease-out; }
-    .fade-in.appear { opacity: 1; transform: translateY(0); }
-
-    /* --- Media Queries --- */
-    @media (max-width:900px){
-      .hero { flex-direction: column; text-align:center; padding:6rem 5% 4rem; }
-      .hero-text .name-title { font-size:3rem; }
-      .hero-text .title-role { font-size:1.5rem; margin-bottom:1rem; }
-      .hero-img { order:-1; }
-      .navbar { display:none; }
-      .header { justify-content:center; }
-      .contact-links { flex-direction: column; align-items: center; }
-    }
-  </style>
+  .status-msg{margin-top:10px;font-size:0.85rem;min-height:20px;font-weight:500}
+  .success{color:var(--success)} .error{color:var(--danger)}
+</style>
 </head>
 <body>
 
-  <!-- Welcome Screen -->
-  <div id="welcome" class="welcome-screen"><h1 id="welcome-text"></h1></div>
-
-  <!-- Header -->
-<header class="header">
-  <a href="index.html" class="logo">Fahreza<span class="logo-dot">.</span></a>
-  <nav class="navbar">
-    <a href="index.html" class="active"><i class="fas fa-home"></i> Home</a>
-    <a href="index jepang.html" class="active"><i class="fas fa-laptop-code"></i> learn Japanese</a>
-    <a href="index game.html" class="active"><i class="fas fa-laptop-code"></i> game</a>
-    <a href="foto filter.htmll" class="active"><i class="fas fa-laptop-code"></i> filter</a>
-  </nav>
+<header>
+  <div class="head-wrap">
+    <div class="brand">🚀 Cerpen Manager</div>
+    <div style="font-size:0.85rem;color:var(--muted)">System v2.1 • Fixed & Fast</div>
+  </div>
 </header>
 
+<div class="container">
+  
+  <section>
+    <div class="card">
+      <h2>Tulis & Upload Cerpen</h2>
+      <p style="color:var(--muted);font-size:0.9rem;margin-bottom:20px">
+        Isi data di bawah ini, lalu tekan Upload agar Admin bisa memeriksanya.
+      </p>
 
-  <!-- Floating Elements -->
-  <div class="floating-elements">
-    <span>&lt;/&gt;</span>
-    <span>NET</span>
-    <span>SERV</span>
-    <span>DEV</span>
+      <label>Judul Cerpen</label>
+      <input type="text" id="client-judul" placeholder="Contoh: Petualangan di Kantor">
+
+      <label>Pilih Divisi (Tujuan Folder)</label>
+      <select id="client-divisi">
+        <option value="CERPEN_DIMAS">📂 Divisi DIMAS</option>
+        <option value="CERPEN_MEDYO">📂 Divisi MEDYO</option>
+        <option value="CERPEN_NAI">📂 Divisi NAI</option>
+        <option value="CERPEN_RAZAN">📂 Divisi RAZAN</option>
+        <option value="CERPEN_REZA">📂 Divisi REZA</option>
+        <option value="CERPEN_SYAHDAN">📂 Divisi SYAHDAN</option>
+        <option value="CERPEN_ABDI">📂 Divisi ABDI</option>
+      </select>
+
+      <label>Isi Cerpen</label>
+      <textarea id="client-isi" placeholder="Mulai mengetik cerpenmu di sini..."></textarea>
+
+      <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn" onclick="clientUpload()">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+          Upload ke Admin
+        </button>
+        <button class="btn secondary" onclick="clientDownloadOnly()">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+          Download Pribadi (.docx)
+        </button>
+      </div>
+      <div id="client-status" class="status-msg"></div>
+    </div>
+  </section>
+
+  <aside>
+    <div class="card" id="login-card">
+      <h3>🔐 Admin Login</h3>
+      <p style="font-size:0.85rem;color:var(--muted)">Masuk untuk mengelola file dalam folder.</p>
+      
+      <label>Email Admin</label>
+      <input type="email" id="admin-email" placeholder="admin@domain.com">
+      
+      <label>Password</label>
+      <input type="password" id="admin-pass" placeholder="••••••••">
+      
+      <button class="btn" id="btnLogin" style="width:100%;margin-top:20px" onclick="login()">Masuk</button>
+      <div id="login-status" class="status-msg"></div>
+    </div>
+
+    <div class="card" id="admin-dashboard" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <h3 style="margin:0">🗂️ File Manager</h3>
+        <button class="btn secondary" style="font-size:0.75rem;padding:4px 8px" onclick="logout()">Logout</button>
+      </div>
+
+      <div id="view-folders">
+        <div class="folder-grid" id="folder-container"></div>
+      </div>
+
+      <div id="view-files" style="display:none">
+        <button class="btn secondary" onclick="backToFolders()" style="margin-bottom:12px;width:100%">
+          ⬅ Kembali ke Daftar Folder
+        </button>
+        <div style="background:rgba(255,255,255,0.05);padding:10px;border-radius:6px;margin-bottom:10px;border:1px solid var(--folder)">
+          <strong id="current-folder-name" style="color:var(--folder)">Folder: -</strong>
+        </div>
+        <div id="file-list-container" class="file-list">
+          <div style="text-align:center;color:var(--muted);padding:20px">Memuat file...</div>
+        </div>
+      </div>
+
+    </div>
+  </aside>
+
+</div>
+
+<div id="editorOverlay">
+  <div class="editor-modal">
+    <div class="editor-body">
+      <h3 style="margin-top:0">✏️ Edit File Client</h3>
+      <input type="hidden" id="edit-docId">
+      <input type="hidden" id="edit-divisi">
+      
+      <label>Judul</label>
+      <input type="text" id="edit-judul">
+      
+      <label>Isi Konten</label>
+      <textarea id="edit-isi" style="height:350px"></textarea>
+    </div>
+    
+    <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end;border-top:1px solid var(--border);padding-top:15px">
+      <button class="btn secondary" onclick="closeEditor()">Batal</button>
+      <button class="btn" onclick="saveEditor()">Simpan Perubahan</button>
+    </div>
   </div>
+</div>
 
-  <!-- Hero -->
-  <section class="hero" id="home">
-    <div class="hero-img fade-in"><img src="me 2.jpg" alt="Foto Fahreza"></div>
-    <div class="hero-text fade-in">
-      <p class="greeting">Hello, Saya</p>
-      <h1 class="name-title">Fahreza</h1>
-      <h2 class="typewriter title-role">TKJ Student | Aspiring Web Developer</h2>
-      <p class="description">Saya sekarang kelas 11 jurusan <b>TKJ</b> di SMK 3 Perguruan Cikini. Saya masih pemula dan belajar dasar <i>networking</i>, setup server, dan web development.</p>
-      <a href="#about" class="btn"><i class="fas fa-address-card"></i> Kenali Saya</a>
-    </div>
-  </section>
+<footer style="text-align:center;padding:20px;color:var(--muted);font-size:0.8rem">
+  @RzaHex — Admin System v2.1 (Fixed)
+</footer>
 
-  <!-- About -->
-  <section id="about" class="fade-in">
-    <h2 class="heading">About <span class="accent">Me</span></h2>
-    <p>Nama saya <b>Fahreza</b>, kelas 11 jurusan TKJ. Fokus belajar <b>Networking (Cisco, Mikrotik)</b>, <b>Linux Server/Virtualisasi</b>, dan <b>Web Development</b>. Tujuan: jadi ahli IT dan bikin karya nyata.</p>
-    <a href="#contact" class="btn btn-secondary"><i class="fas fa-paper-plane"></i> Hubungi Saya</a>
-  </section>
+<script>
+/* =========================================
+   1. KONFIGURASI FIREBASE
+   ⚠ PENTING: GANTI DENGAN CONFIG KAMU ⚠
+   ========================================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyC2Lo4wJcazvGvrrPvrMdx_VwFnn1R9TDw", 
+  authDomain: "rzacorp-59dd8.firebaseapp.com",
+  projectId: "rzacorp-59dd8",
+  storageBucket: "rzacorp-59dd8.appspot.com",
+  messagingSenderId: "416858419245",
+  appId: "1:416858419245:android:5d146b8fa173e7c81548a4"
+};
 
-  <!-- Skills -->
-  <section id="skills" class="fade-in">
-    <h2 class="heading">My <span class="accent">Skills</span></h2>
-    <div class="skills-container">
-      <div class="skill-item">
-        <div class="skill-info"><p>Networking (Cisco, Mikrotik)</p><span>85%</span></div>
-        <div class="bar"><span data-level="85%"></span></div>
-      </div>
-      <div class="skill-item">
-        <div class="skill-info"><p>Linux Server & Virtualisasi</p><span>70%</span></div>
-        <div class="bar"><span data-level="70%"></span></div>
-      </div>
-      <div class="skill-item">
-        <div class="skill-info"><p>HTML & CSS</p><span>80%</span></div>
-        <div class="bar"><span data-level="80%"></span></div>
-      </div>
-      <div class="skill-item">
-        <div class="skill-info"><p>JavaScript (Basic)</p><span>55%</span></div>
-        <div class="bar"><span data-level="55%"></span></div>
-      </div>
-      <div class="skill-item">
-        <div class="skill-info"><p>Hardware & Troubleshooting</p><span>75%</span></div>
-        <div class="bar"><span data-level="75%"></span></div>
-      </div>
-    </div>
-  </section>
+// Inisialisasi Firebase (Versi Compat)
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-  <!-- Projects -->
-  <section id="projects" class="fade-in">
-    <h2 class="heading">My <span class="accent">Projects</span></h2>
-    <div class="projects-container">
-      <div class="card">
-        <h3>Konfigurasi Jaringan LAN & VLAN</h3>
-        <p>Simulasi jaringan kompleks menggunakan Cisco Packet Tracer (Subnetting, Routing, VLAN).</p>
-        <a href="#" class="project-link">Details <i class="fas fa-arrow-right"></i></a>
-      </div>
-      <div class="card">
-        <h3>Setup Server Debian</h3>
-        <p>Instalasi & konfigurasi server dasar (Web Server, DNS, DHCP) di lingkungan virtual.</p>
-        <a href="#" class="project-link">Details <i class="fas fa-arrow-right"></i></a>
-      </div>
-      <div class="card">
-        <h3>Website Portofolio & Landing Page</h3>
-        <p>Pengembangan website statis menggunakan HTML, CSS, dan JavaScript dasar.</p>
-        <a href="#" class="project-link">Details <i class="fas fa-arrow-right"></i></a>
-      </div>
-    </div>
-  </section>
+/* =========================================
+   2. DATA DIVISI
+   ========================================= */
+const DIVISIONS = [
+  "CERPEN_DIMAS", "CERPEN_MEDYO", "CERPEN_NAI", 
+  "CERPEN_RAZAN", "CERPEN_REZA", "CERPEN_SYAHDAN", "CERPEN_ABDI"
+];
 
-  <!-- Contact -->
-  <section id="contact" class="fade-in">
-    <h2 class="heading">Get In <span class="accent">Touch</span></h2>
-    <p class="contact-text">Tertarik berdiskusi tentang proyek atau peluang belajar? Hubungi saya!</p>
-    <div class="contact-links">
-      <a href="https://instagram.com/xrez.py" target="_blank" class="social-link"><i class="fab fa-instagram"></i>@xrez.py</a>
-      <a href="mailto:your.email@example.com" class="social-link"><i class="fas fa-envelope"></i>Email Me</a>
-    </div>
-  </section>
+/* =========================================
+   3. SYSTEM ADMIN (LOGIN & FOLDERS)
+   ========================================= */
 
-  <!-- Footer -->
-  <footer>
-    <p>&copy; 2025 Fahreza. All Rights Reserved.</p>
-    <a href="#home" class="scroll-up"><i class="fas fa-arrow-up"></i> Back to Top</a>
-  </footer>
+// Cek Status Login (Otomatis)
+auth.onAuthStateChanged((user) => {
+  const loginCard = document.getElementById('login-card');
+  const dashCard = document.getElementById('admin-dashboard');
+  
+  if (user) {
+    // Jika User Login
+    console.log("Logged in as:", user.email);
+    loginCard.style.display = 'none';
+    dashCard.style.display = 'block';
+    renderFolders();
+  } else {
+    // Jika User Logout/Belum Login
+    console.log("No user.");
+    loginCard.style.display = 'block';
+    dashCard.style.display = 'none';
+  }
+});
 
-  <!-- JS -->
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Welcome Screen Typewriter
-      const welcomeTextEl = document.getElementById('welcome-text');
-      const welcomeScreen = document.getElementById('welcome');
-      const text = 'Selamat Datang.';
-      let i = 0;
-      function typeWriter() {
-        if(i < text.length) {
-          welcomeTextEl.innerHTML += text.charAt(i);
-          i++;
-          setTimeout(typeWriter, 120);
-        } else {
-          setTimeout(() => {
-            welcomeScreen.style.opacity = '0';
-            setTimeout(() => welcomeScreen.style.display = 'none', 800);
-          }, 1000);
-        }
-      }
-      typeWriter();
+// Fungsi Login
+function login() {
+  const e = document.getElementById('admin-email').value;
+  const p = document.getElementById('admin-pass').value;
+  const s = document.getElementById('login-status');
+  const btn = document.getElementById('btnLogin');
 
-      // Fade-in & Skill bar
-      const fadeElems = document.querySelectorAll('.fade-in');
-      const skillSpans = document.querySelectorAll('.bar span');
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if(entry.isIntersecting){
-            entry.target.classList.add('appear');
-            if(entry.target.id === 'skills'){
-              skillSpans.forEach(span => span.style.width = span.dataset.level);
-            }
-          }
-        });
-      }, {threshold:0.2});
-      fadeElems.forEach(el => observer.observe(el));
+  if(!e || !p) {
+    s.innerHTML = '<span class="error">Email dan Password wajib diisi!</span>';
+    return;
+  }
 
-      // Navbar active link
-      const sections = document.querySelectorAll('section[id]');
-      const navLinks = document.querySelectorAll('.navbar a');
-      window.addEventListener('scroll', () => {
-        let current = '';
-        sections.forEach(sec => { if(scrollY >= sec.offsetTop - 100) current = sec.id; });
-        navLinks.forEach(link => { link.classList.remove('active'); if(link.getAttribute('href').includes(current)) link.classList.add('active'); });
-      });
+  s.innerHTML = 'Sedang masuk...';
+  s.className = 'status-msg'; // reset warna
+  btn.disabled = true;
+
+  auth.signInWithEmailAndPassword(e, p)
+    .then((uc) => {
+      s.innerHTML = '<span class="success">Berhasil! Memuat data...</span>';
+      // UI akan berpindah otomatis karena onAuthStateChanged
+    })
+    .catch((error) => {
+      console.error(error);
+      btn.disabled = false;
+      let msg = "Terjadi kesalahan.";
+      if(error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password') msg = "Password atau Email salah.";
+      else if(error.code === 'auth/user-not-found') msg = "Email tidak terdaftar.";
+      else if(error.code === 'auth/too-many-requests') msg = "Terlalu banyak mencoba. Tunggu sebentar.";
+      else if(error.code === 'auth/network-request-failed') msg = "Koneksi internet bermasalah.";
+      
+      s.innerHTML = `<span class="error">${msg}</span>`;
     });
-  </script>
+}
+
+// Fungsi Logout
+function logout() {
+  if(confirm("Yakin ingin logout?")) {
+    auth.signOut();
+    document.getElementById('login-status').innerHTML = '';
+    backToFolders();
+  }
+}
+
+// Render Folder
+function renderFolders() {
+  const container = document.getElementById('folder-container');
+  container.innerHTML = '';
+  DIVISIONS.forEach(divName => {
+    const div = document.createElement('div');
+    div.className = 'folder-item';
+    div.onclick = () => openFolder(divName);
+    div.innerHTML = `
+      <svg class="folder-icon" viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg>
+      <div class="folder-name">${divName.replace('CERPEN_', '')}</div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+// Buka Folder & Load Data
+function openFolder(divName) {
+  document.getElementById('view-folders').style.display = 'none';
+  document.getElementById('view-files').style.display = 'block';
+  document.getElementById('current-folder-name').innerText = `Folder: ${divName.replace('CERPEN_','')}`;
+  
+  const list = document.getElementById('file-list-container');
+  list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Mengambil data...</div>';
+
+  db.collection(divName).orderBy('createdAt', 'desc').get()
+    .then(snap => {
+      list.innerHTML = '';
+      if(snap.empty) {
+        list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Folder kosong.</div>';
+        return;
+      }
+      snap.forEach(doc => {
+        list.appendChild(createFileCard(doc.id, doc.data(), divName));
+      });
+    })
+    .catch(err => {
+      console.error(err);
+      list.innerHTML = '<div class="error" style="text-align:center">Gagal memuat data. Cek koneksi.</div>';
+    });
+}
+
+function backToFolders() {
+  document.getElementById('view-files').style.display = 'none';
+  document.getElementById('view-folders').style.display = 'block';
+}
+
+function createFileCard(id, data, div) {
+  const el = document.createElement('div');
+  el.className = 'file-card';
+  const time = data.createdAt ? new Date(data.createdAt.seconds*1000).toLocaleString() : '-';
+  const safeJudul = escapeHtml(data.judul || '(Tanpa Judul)');
+  
+  el.innerHTML = `
+    <div class="file-header">
+      <div class="file-title">📄 ${safeJudul}</div>
+    </div>
+    <div class="file-meta">Uploaded: ${time}</div>
+    <div style="font-size:0.85rem;color:#cbd5e1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-bottom:8px">
+       ${escapeHtml(data.isi)}
+    </div>
+    <div class="file-actions">
+      <button class="btn secondary" onclick="editFile('${div}','${id}')">✏️ Edit</button>
+      <button class="btn danger" onclick="delFile('${div}','${id}')">🗑️ Hapus</button>
+      <button class="btn download" onclick="dlFile('${div}','${id}')">⬇️ Install .docx</button>
+    </div>
+  `;
+  return el;
+}
+
+/* =========================================
+   4. FITUR CLIENT
+   ========================================= */
+function clientUpload() {
+  const judul = document.getElementById('client-judul').value.trim();
+  const isi = document.getElementById('client-isi').value.trim();
+  const div = document.getElementById('client-divisi').value;
+  const stat = document.getElementById('client-status');
+
+  if(!judul || !isi) {
+    stat.innerHTML = '<span class="error">Judul & Isi harus diisi!</span>';
+    return;
+  }
+  stat.innerHTML = 'Mengirim...';
+
+  db.collection(div).add({
+    judul: judul, isi: isi,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(() => {
+    stat.innerHTML = '<span class="success">✅ Terkirim ke Admin Folder '+div+'!</span>';
+    document.getElementById('client-judul').value='';
+    document.getElementById('client-isi').value='';
+  }).catch(err => {
+    stat.innerHTML = '<span class="error">Gagal kirim: '+err.message+'</span>';
+  });
+}
+
+function clientDownloadOnly(){
+  const j = document.getElementById('client-judul').value || "Tanpa Judul";
+  const i = document.getElementById('client-isi').value;
+  if(!i) return alert("Isi kosong!");
+  generateDocx(j, i, `DRAFT_${j}.docx`);
+}
+
+/* =========================================
+   5. ACTIONS (EDIT, DELETE, DOWNLOAD)
+   ========================================= */
+// EDIT
+function editFile(div, id) {
+  db.collection(div).doc(id).get().then(doc => {
+    if(doc.exists) {
+      const d = doc.data();
+      document.getElementById('edit-docId').value = id;
+      document.getElementById('edit-divisi').value = div;
+      document.getElementById('edit-judul').value = d.judul;
+      document.getElementById('edit-isi').value = d.isi;
+      document.getElementById('editorOverlay').style.display = 'flex';
+    }
+  });
+}
+function closeEditor(){ document.getElementById('editorOverlay').style.display = 'none'; }
+function saveEditor(){
+  const id = document.getElementById('edit-docId').value;
+  const div = document.getElementById('edit-divisi').value;
+  const j = document.getElementById('edit-judul').value;
+  const i = document.getElementById('edit-isi').value;
+
+  db.collection(div).doc(id).update({ judul: j, isi: i }).then(() => {
+    alert("Berhasil diupdate!");
+    closeEditor();
+    openFolder(div);
+  });
+}
+
+// DELETE
+function delFile(div, id) {
+  if(confirm("Hapus file ini permanen?")) {
+    db.collection(div).doc(id).delete().then(() => openFolder(div));
+  }
+}
+
+// DOWNLOAD
+function dlFile(div, id) {
+  db.collection(div).doc(id).get().then(doc => {
+    if(doc.exists) {
+      const d = doc.data();
+      generateDocx(d.judul, d.isi, `${div}_${d.judul.replace(/\s+/g,'_')}.docx`);
+    }
+  });
+}
+
+/* =========================================
+   6. UTILITIES
+   ========================================= */
+function generateDocx(title, content, filename){
+  const { Document, Packer, Paragraph, TextRun, HeadingLevel } = docx;
+  const pars = content.split(/\n+/).map(t => new Paragraph({
+    children:[new TextRun({text:t, font:"Times New Roman", size:24})],
+    spacing:{after:200}
+  }));
+  const doc = new Document({
+    sections:[{ children:[
+      new Paragraph({text:title, heading:HeadingLevel.HEADING_1, spacing:{after:400}}),
+      ...pars
+    ]}]
+  });
+  Packer.toBlob(doc).then(b => saveAs(b, filename));
+}
+
+function escapeHtml(text) {
+  if(!text) return "";
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+</script>
 </body>
 </html>
